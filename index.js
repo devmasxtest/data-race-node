@@ -1,9 +1,5 @@
 const fs = require("fs");
 const raceCase = require("./race.json");
-// fs.readFile("./natalidad000000000000.csv", "utf8", (err, data) => {
-//   result.push(data);
-//   console.log(data);
-// });
 
 // count by state
 const countState = {
@@ -21,14 +17,23 @@ const countRace = {
   "2000": {}
 };
 
+const countGender = {};
+
+const averageWeight = {
+  count: 0,
+  totalWeightPound: 0
+};
+
 const addCount = (obj, key) => {
   obj[key] = obj[key] ? obj[key] + 1 : 1;
 };
 
-const setCountByQueryState = row => {
+const setCountByQuery = row => {
   const state = row[5];
   const year = parseInt(row[1], "10");
   const child_race = raceCase[row[7]] || row[7];
+  const gender = row[6] == "true" ? "male" : "female";
+  const weight_pounds = parseFloat(row[8], "10") || 0;
 
   if (year >= 1970 && year < 1980) {
     addCount(countState["70"], state);
@@ -43,6 +48,12 @@ const setCountByQueryState = row => {
     addCount(countState["2000"], state);
     addCount(countRace["2000"], child_race);
   }
+  if (year >= 1970 && year < 2010) {
+    addCount(countGender, gender);
+    averageWeight.count = averageWeight.count + 1;
+    averageWeight.totalWeightPound =
+      averageWeight.totalWeightPound + weight_pounds;
+  }
 };
 
 async function readSpeed(file) {
@@ -53,7 +64,7 @@ async function readSpeed(file) {
       result = data.split(/\n/);
       result.forEach(line => {
         const row = line.split(",");
-        setCountByQueryState(row);
+        setCountByQuery(row);
       });
       stream.destroy();
     });
@@ -67,8 +78,8 @@ async function readSpeed(file) {
   const label = `readSpeed`;
   console.time(label);
   const files = fs.readdirSync("./data/natalidad");
+  // pararell
   await Promise.all(files.map(name => readSpeed(`./data/natalidad/${name}`)));
-  // const result = await readSpeed("./natalidad000000000000.csv");
   console.timeEnd(label);
-  console.log(countRace);
+  console.log(averageWeight);
 })();
