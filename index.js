@@ -81,5 +81,20 @@ async function readSpeed(file) {
   // pararell
   await Promise.all(files.map(name => readSpeed(`./data/natalidad/${name}`)));
   console.timeEnd(label);
-  console.log(averageWeight);
+  fs.writeFileSync(
+    "./result.json",
+    JSON.stringify({
+      B70: countState["70"],
+      B80: countState["80"],
+      B90: countState["90"],
+      B00: countState["2000"],
+      Race70: countRace["70"],
+      Race80: countRace["80"],
+      Race90: countRace["90"],
+      Race00: countRace["00"],
+      Male: countGender["male"],
+      Female: countGender["female"],
+      Weight: averageWeight
+    })
+  );
 })();
