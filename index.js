@@ -74,6 +74,19 @@ async function readSpeed(file) {
   });
 }
 
+// async function readSlow(file) {
+//   return new Promise(resolve => {
+//     fs.readFile(file, "utf8", (err, data) => {
+//       const result = data.split(/\n/);
+//       result.forEach(line => {
+//         const row = line.split(",");
+//         setCountByQuery(row);
+//       });
+//       resolve();
+//     });
+//   });
+// }
+
 (async () => {
   const label = `readSpeed`;
   console.time(label);

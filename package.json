@@ -10,5 +10,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^11.11.3"
+  },
+  "dependencies": {
+    "download-file": "^0.1.5"
   }
 }
