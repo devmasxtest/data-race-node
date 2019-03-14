@@ -1,25 +1,36 @@
-const result = require("./result.json");
 const _ = require("lodash");
-const obj = _.pick(result, ["B70", "B80", "B90", "B00"]);
-const allStates = [];
+const fs = require("fs");
+const result = require("./result.json");
+const finalResult = [];
 
-// Object.entries(obj).map(([key, value]) => {
-//   Object.entries(value).map(([_key, _value]) => {
-//     const states = Object.keys(_key);
-//     allStates = [...states];
-//   });
-// });
-// let finalResult = [];
+const maxKey = obj => {
+  if (!obj) {
+    return "";
+  }
+  let race = "";
+  let max = 0;
+  Object.entries(obj).map(([raceName, value]) => {
+    if (value > max) {
+      max = value;
+      race = raceName;
+    }
+  });
+  return race;
+};
 
-// Object.entries(obj).map(([key, value]) => {
-//   Object.entries(value).map(([_key, _value]) => {
-//     const row = finalResult.find(item => item.name == _key);
-//     if (row) {
-//       finalResult = { [key]: _value, ...row };
-//     } else {
-//       finalResult.push({ name: _key, [key]: _value });
-//     }
-//   });
-// });
-
-// console.log(finalResult);
+Object.entries(result).map(([state, value]) => {
+  finalResult.push({
+    name: state,
+    B70: value.B70,
+    B80: value.B80,
+    B90: value.B90,
+    B00: value.B00,
+    Race70: maxKey(value.Race70),
+    Race80: maxKey(value.Race80),
+    Race90: maxKey(value.Race90),
+    Race00: maxKey(value.Race00),
+    Male: value.Male,
+    Female: value.Female
+  });
+});
+fs.writeFileSync("./finalResult.json", JSON.stringify(finalResult));
