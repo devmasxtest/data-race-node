@@ -28,7 +28,14 @@ const addCount = (obj, key) => {
   obj[key] = obj[key] ? obj[key] + 1 : 1;
 };
 
-const setCountByQuery = (row, fileName) => {
+const addCountState = (obj, state, key) => {
+  if (!obj[state]) {
+    obj[state] = {};
+  }
+  obj[state][key] = obj[state][key] ? obj[state][key] + 1 : 1;
+};
+
+const setCountByQuery = row => {
   const state = row[5];
   const year = parseInt(row[1], "10");
   const child_race = raceCase[row[7]] || row[7];
@@ -37,16 +44,17 @@ const setCountByQuery = (row, fileName) => {
 
   if (year >= 1970 && year < 1980) {
     addCount(countState["70"], state);
-    addCount(countRace["70"], child_race);
+    addCountState(countRace["70"], state, child_race);
   } else if (year >= 1980 && year < 1990) {
     addCount(countState["80"], state);
-    addCount(countRace["80"], child_race);
+    addCountState(countRace["80"], state, child_race);
   } else if (year >= 1990 && year < 2000) {
     addCount(countState["90"], state);
-    addCount(countRace["90"], child_race);
+    addCountState(countRace["90"], state, child_race);
   } else if (year >= 2000 && year < 2010) {
     addCount(countState["2000"], state);
     addCount(countRace["2000"], child_race);
+    addCountState(countRace["2000"], state, child_race);
   }
   if (year >= 1970 && year < 2010) {
     addCount(countGender, gender);
@@ -68,7 +76,7 @@ async function readSpeed(file) {
       console.log("Size file", result.length);
       result.forEach(line => {
         const row = line.split(",");
-        setCountByQuery(row, file);
+        setCountByQuery(row);
       });
       stream.destroy();
     });
