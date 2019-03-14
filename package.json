@@ -12,6 +12,7 @@
     "@types/node": "^11.11.3"
   },
   "dependencies": {
-    "download-file": "^0.1.5"
+    "download-file": "^0.1.5",
+    "lodash": "^4.17.11"
   }
 }

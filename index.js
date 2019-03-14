@@ -28,7 +28,7 @@ const addCount = (obj, key) => {
   obj[key] = obj[key] ? obj[key] + 1 : 1;
 };
 
-const setCountByQuery = row => {
+const setCountByQuery = (row, fileName) => {
   const state = row[5];
   const year = parseInt(row[1], "10");
   const child_race = raceCase[row[7]] || row[7];
@@ -58,17 +58,22 @@ const setCountByQuery = row => {
 
 async function readSpeed(file) {
   return new Promise(resolve => {
-    let result;
+    const label = `readSpeed-file${file}`;
+    console.time(label);
+
+    let result = [];
     const stream = fs.createReadStream(file, { encoding: "utf8" });
     stream.on("data", data => {
       result = data.split(/\n/);
+      console.log("Size file", result.length);
       result.forEach(line => {
         const row = line.split(",");
-        setCountByQuery(row);
+        setCountByQuery(row, file);
       });
       stream.destroy();
     });
     stream.on("close", () => {
+      console.timeEnd(label);
       resolve(result);
     });
   });
@@ -91,8 +96,10 @@ async function readSpeed(file) {
   const label = `readSpeed`;
   console.time(label);
   const files = fs.readdirSync("./data/natalidad");
+  console.log("read n files", files.length);
   // pararell
   await Promise.all(files.map(name => readSpeed(`./data/natalidad/${name}`)));
+  // await readSpeed(`./data/natalidad/natalidad000000000001.csv`);
   console.timeEnd(label);
   fs.writeFileSync(
     "./result.json",
