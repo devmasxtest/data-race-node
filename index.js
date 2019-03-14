@@ -10,12 +10,7 @@ const countState = {
 };
 
 // count by child_race
-const countRace = {
-  "70": {},
-  "80": {},
-  "90": {},
-  "2000": {}
-};
+const countRace = {};
 
 const countGender = {};
 
@@ -28,11 +23,16 @@ const addCount = (obj, key) => {
   obj[key] = obj[key] ? obj[key] + 1 : 1;
 };
 
-const addCountState = (obj, state, key) => {
+const addCountState = (obj, state, number, key) => {
   if (!obj[state]) {
     obj[state] = {};
   }
-  obj[state][key] = obj[state][key] ? obj[state][key] + 1 : 1;
+  if (obj[state] && !obj[state][number]) {
+    obj[state][number] = {};
+  }
+  obj[state][number][key] = obj[state][number][key]
+    ? obj[state][number][key] + 1
+    : 1;
 };
 
 const setCountByQuery = row => {
@@ -44,17 +44,16 @@ const setCountByQuery = row => {
 
   if (year >= 1970 && year < 1980) {
     addCount(countState["70"], state);
-    addCountState(countRace["70"], state, child_race);
+    addCountState(countRace, state, "70", child_race);
   } else if (year >= 1980 && year < 1990) {
     addCount(countState["80"], state);
-    addCountState(countRace["80"], state, child_race);
+    addCountState(countRace, state, "80", child_race);
   } else if (year >= 1990 && year < 2000) {
     addCount(countState["90"], state);
-    addCountState(countRace["90"], state, child_race);
+    addCountState(countRace, state, "90", child_race);
   } else if (year >= 2000 && year < 2010) {
     addCount(countState["2000"], state);
-    addCount(countRace["2000"], child_race);
-    addCountState(countRace["2000"], state, child_race);
+    addCountState(countRace, state, "2000", child_race);
   }
   if (year >= 1970 && year < 2010) {
     addCount(countGender, gender);
