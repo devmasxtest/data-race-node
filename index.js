@@ -43,9 +43,15 @@ const addCountWeight = (obj, state, weight) => {
     obj[state] = {};
   }
 
-  obj[state].count = obj[state].count ? obj[state].count + 1 : 1;
-  obj[state].totalWeightPound = obj[state].totalWeightPound
-    ? obj[state].totalWeightPound + weight
+  if (obj[state] && !obj[state].Weight) {
+    obj[state].Weight = {};
+  }
+
+  obj[state].Weight.count = obj[state].Weight.count
+    ? obj[state].Weight.count + 1
+    : 1;
+  obj[state].Weight.totalWeightPound = obj[state].Weight.totalWeightPound
+    ? obj[state].Weight.totalWeightPound + weight
     : weight;
 };
 
@@ -55,6 +61,7 @@ const setCountByQuery = row => {
   const child_race = raceCase[row[7]] || row[7];
   const gender = row[6] == "true" ? "male" : "female";
   const weight_pounds = parseFloat(row[8], "10") || 0;
+
   let number;
   if (year >= 1970 && year < 1980) {
     number = "70";
@@ -70,10 +77,7 @@ const setCountByQuery = row => {
   addCountRace(countResult, state, number, child_race);
   if (year >= 1970 && year < 2010) {
     addCountGender(countResult, state, gender);
-    addCountWeight(countResult, state, gender);
-    // averageWeight.count = averageWeight.count + 1;
-    // averageWeight.totalWeightPound =
-    //   averageWeight.totalWeightPound + weight_pounds;
+    addCountWeight(countResult, state, weight_pounds);
   }
 };
 
