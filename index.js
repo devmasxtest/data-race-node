@@ -2,37 +2,57 @@ const fs = require("fs");
 const raceCase = require("./race.json");
 
 // count by state
-const countState = {
-  "70": {},
-  "80": {},
-  "90": {},
-  "2000": {}
-};
-
-// count by child_race
-const countRace = {
-  "70": {},
-  "80": {},
-  "90": {},
-  "2000": {}
-};
-
-const countGender = {};
+const countResult = {};
 
 const averageWeight = {
   count: 0,
   totalWeightPound: 0
 };
 
-const addCount = (obj, key) => {
-  obj[key] = obj[key] ? obj[key] + 1 : 1;
-};
-
-const addCountState = (obj, state, key) => {
+const addCount = (obj, state, number) => {
   if (!obj[state]) {
     obj[state] = {};
   }
-  obj[state][key] = obj[state][key] ? obj[state][key] + 1 : 1;
+  obj[state][`B${number}`] = obj[state][`B${number}`]
+    ? obj[state][`B${number}`] + 1
+    : 1;
+};
+
+const addCountRace = (obj, state, number, race) => {
+  if (!obj[state]) {
+    obj[state] = {};
+  }
+  if (obj[state] && !obj[state][`Race${number}`]) {
+    obj[state][`Race${number}`] = {};
+  }
+  obj[state][`Race${number}`][race] = obj[state][`Race${number}`][race]
+    ? obj[state][`Race${number}`][race] + 1
+    : 1;
+};
+
+const addCountGender = (obj, state, gender) => {
+  if (!obj[state]) {
+    obj[state] = {};
+  }
+
+  obj[state][gender] = obj[state][gender] ? obj[state][gender] + 1 : 1;
+};
+
+const addCountWeight = (obj, state, weight) => {
+  if (!obj[state]) {
+    obj[state] = {};
+  }
+
+  if (obj[state] && !obj[state].Weight) {
+    obj[state].Weight = {};
+  }
+
+  obj[state].Weight.count = obj[state].Weight.count
+    ? obj[state].Weight.count + 1
+    : 1;
+  obj[state].Weight.totalWeightPound = obj[state].Weight.totalWeightPound
+    ? obj[state].Weight.totalWeightPound + weight
+    : weight;
 };
 
 const setCountByQuery = row => {
@@ -42,25 +62,22 @@ const setCountByQuery = row => {
   const gender = row[6] == "true" ? "male" : "female";
   const weight_pounds = parseFloat(row[8], "10") || 0;
 
+  let number;
   if (year >= 1970 && year < 1980) {
-    addCount(countState["70"], state);
-    addCountState(countRace["70"], state, child_race);
+    number = "70";
   } else if (year >= 1980 && year < 1990) {
-    addCount(countState["80"], state);
-    addCountState(countRace["80"], state, child_race);
+    number = "80";
   } else if (year >= 1990 && year < 2000) {
-    addCount(countState["90"], state);
-    addCountState(countRace["90"], state, child_race);
+    number = "90";
   } else if (year >= 2000 && year < 2010) {
-    addCount(countState["2000"], state);
-    addCount(countRace["2000"], child_race);
-    addCountState(countRace["2000"], state, child_race);
+    number = "00";
   }
+
+  addCount(countResult, state, number);
+  addCountRace(countResult, state, number, child_race);
   if (year >= 1970 && year < 2010) {
-    addCount(countGender, gender);
-    averageWeight.count = averageWeight.count + 1;
-    averageWeight.totalWeightPound =
-      averageWeight.totalWeightPound + weight_pounds;
+    addCountGender(countResult, state, gender);
+    addCountWeight(countResult, state, weight_pounds);
   }
 };
 
@@ -109,20 +126,5 @@ async function readSpeed(file) {
   await Promise.all(files.map(name => readSpeed(`./data/natalidad/${name}`)));
   // await readSpeed(`./data/natalidad/natalidad000000000001.csv`);
   console.timeEnd(label);
-  fs.writeFileSync(
-    "./result.json",
-    JSON.stringify({
-      B70: countState["70"],
-      B80: countState["80"],
-      B90: countState["90"],
-      B00: countState["2000"],
-      Race70: countRace["70"],
-      Race80: countRace["80"],
-      Race90: countRace["90"],
-      Race00: countRace["00"],
-      Male: countGender["male"],
-      Female: countGender["female"],
-      Weight: averageWeight
-    })
-  );
+  fs.writeFileSync("./result.json", JSON.stringify(countResult));
 })();
