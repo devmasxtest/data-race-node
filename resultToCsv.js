@@ -1,7 +1,16 @@
 const _ = require("lodash");
+const Json2csvParser = require("json2csv").Parser;
 const fs = require("fs");
 const result = require("./result.json");
 const finalResult = [];
+
+const jsonToCsv = (array = []) => {
+  const fields = Object.keys(array[0]);
+  const opts = { fields };
+  const parser = new Json2csvParser(opts);
+  const csv = parser.parse(array);
+  fs.writeFileSync("./result.csv", csv);
+};
 
 const maxKey = obj => {
   if (!obj) {
@@ -34,3 +43,4 @@ Object.entries(result).map(([state, value]) => {
   });
 });
 fs.writeFileSync("./finalResult.json", JSON.stringify(finalResult));
+jsonToCsv(finalResult);
